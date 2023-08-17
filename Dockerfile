@@ -179,14 +179,47 @@ ENV FFMPEG_LIBS \
       -lfribidi \
       -lharfbuzz \
       -lass
-RUN mkdir -p /src/dist/umd && bash -x /src/build.sh \
+RUN mkdir -p /src/dist/ffmpeg/umd && bash -x /src/build.sh \
       ${FFMPEG_LIBS} \
-      -o dist/umd/ffmpeg-core.js
-RUN mkdir -p /src/dist/esm && bash -x /src/build.sh \
+      -o dist/ffmpeg/umd/ffmpeg-core.js
+RUN mkdir -p /src/dist/ffmpeg/esm && bash -x /src/build.sh \
       ${FFMPEG_LIBS} \
       -sEXPORT_ES6 \
-      -o dist/esm/ffmpeg-core.js
+      -o dist/ffmpeg/esm/ffmpeg-core.js
 
+# Build ffprobe.wasm
+FROM ffmpeg-builder AS ffprobe-wasm-builder
+COPY src/bind /src/src/bind
+COPY src/fftools /src/src/fftools
+COPY build/ffprobe-wasm.sh build.sh
+# libraries to link
+ENV FFMPEG_LIBS \
+      -lx264 \
+      -lx265 \
+      -lvpx \
+      -lmp3lame \
+      -logg \
+      -ltheora \
+      -lvorbis \
+      -lvorbisenc \
+      -lvorbisfile \
+      -lopus \
+      -lz \
+      -lwebp \
+      -lfreetype \
+      -lfribidi \
+      -lharfbuzz \
+      -lass
+RUN mkdir -p /src/dist/ffprobe/umd && bash -x /src/build.sh \
+      ${FFMPEG_LIBS} \
+      -o dist/ffprobe/umd/ffprobe-core.js
+RUN mkdir -p /src/dist/ffprobe/esm && bash -x /src/build.sh \
+      ${FFMPEG_LIBS} \
+      -sEXPORT_ES6 \
+      -o dist/ffprobe/esm/ffprobe-core.js
 # Export ffmpeg-core.wasm to dist/, use `docker buildx build -o . .` to get assets
 FROM scratch AS exportor
-COPY --from=ffmpeg-wasm-builder /src/dist /dist
+COPY src/ /src
+COPY src/ /opt
+COPY --from=ffmpeg-wasm-builder /src/dist/ffmpeg /dist/ffmpeg
+COPY --from=ffprobe-wasm-builder /src/dist/ffprobe /dist/ffprobe
