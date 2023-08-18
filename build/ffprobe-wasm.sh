@@ -8,6 +8,7 @@ set -euo pipefail
 EXPORT_NAME="createFFprobeCore"
 
 CONF_FLAGS=(
+  -g
   -I. 
   -I./src/fftools 
   -I$INSTALL_DIR/include 
@@ -44,6 +45,7 @@ CONF_FLAGS=(
   src/fftools/cmdutils.c 
   src/fftools/opt_common.c 
   src/fftools/ffprobe.c 
+  -fdebug-compilation-dir='.'
 )
 
 emcc "${CONF_FLAGS[@]}" $@

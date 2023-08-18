@@ -3426,6 +3426,8 @@ static int probe_file(WriterContext *wctx, const char *filename,
     do_read_packets = do_show_packets || do_count_packets;
 
     ret = open_input_file(&ifile, filename, print_filename);
+    // av_log(NULL, AV_LOG_ERROR,
+    //             "going end because ret<0 \n");
     if (ret < 0)
         goto end;
 
@@ -4028,15 +4030,29 @@ static inline int check_section_show_entries(int section_id)
             do_show_##varname = 1;                                      \
     } while (0)
 
+
+void init_globals() { 
+ input_filename = NULL;
+ print_input_filename = NULL;
+ AVInputFormat *iformat = NULL;
+ output_filename = NULL;
+}
+
+
 int ffprobe(int argc, char **argv)
 {
+    init_globals();
     const Writer *w;
     WriterContext *wctx;
     char *buf;
     char *w_name = NULL, *w_args = NULL;
     int ret, input_ret, i;
-
     init_dynload();
+    if(input_filename) {
+        av_log(NULL, AV_LOG_QUIET,
+                            "inputfile: '%s'\n args: '%s'",
+                            input_filename,argv);
+    }
 
 #if HAVE_THREADS
     ret = pthread_mutex_init(&log_mutex, NULL);
@@ -4178,6 +4194,7 @@ end:
         av_dict_free(&(sections[i].entries_to_show));
 
     avformat_network_deinit();
-
+    // av_log(NULL, AV_LOG_ERROR,
+    //             "going end\n");
     return ret < 0;
 }

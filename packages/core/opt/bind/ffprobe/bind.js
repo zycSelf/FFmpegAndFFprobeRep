@@ -14,7 +14,7 @@ Module["DEFAULT_ARGS"] = DEFAULT_ARGS;
  * Variables
  */
 
-Module["ret"] = -1;
+Module["ret"] = 0;
 Module["timeout"] = -1;
 Module["logger"] = () => {};
 Module["progress"] = () => {};
@@ -79,7 +79,7 @@ function receiveProgress(progress, time) {
 }
 
 function reset() {
-  Module["ret"] = -1;
+  Module["ret"] = 0;
   Module["timeout"] = -1;
 }
 
